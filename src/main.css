@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Subtle appear animation for virtualized items (no height changes) */
+@keyframes item-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.item-appear {
+  animation: item-fade-in-up 220ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-appear {
+    animation: none;
+  }
+}
+
+/* iOS momentum scrolling fix in case Tailwind resets change it */
+.ios-momentum {
+  -webkit-overflow-scrolling: touch;
+}

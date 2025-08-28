@@ -1,0 +1,48 @@
+{
+    "name": "@kortexa-ai/react-virtual",
+    "private": true,
+    "version": "0.1.0",
+    "type": "module",
+    "scripts": {
+        "start": "vite",
+        "dev": "vite",
+        "typecheck": "tsc -p tsconfig.app.json --noEmit",
+        "build": "tsc -b && vite build",
+        "lint": "eslint . --report-unused-disable-directives --no-error-on-unmatched-pattern",
+        "lint:fix": "npm run lint -- --fix",
+        "validate": "npm run typecheck && npm run lint",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@tailwindcss/vite": "^4.1.12",
+        "@tanstack/react-query": "^5.85.5",
+        "@tanstack/react-virtual": "^3.13.12",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "tailwind-merge": "^3.3.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.34.0",
+        "@tailwindcss/typography": "^0.5.16",
+        "@tailwindcss/vite": "^4.1.12",
+        "@types/node": "^24.3.0",
+        "@types/react": "^19.1.12",
+        "@types/react-dom": "^19.1.9",
+        "@vitejs/plugin-react-swc": "^4.0.1",
+        "dotenv": "^17.2.1",
+        "eslint": "^9.34.0",
+        "eslint-import-resolver-typescript": "^4.4.4",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "eslint-plugin-react-refresh": "^0.4.20",
+        "globals": "^16.3.0",
+        "jiti": "^2.5.1",
+        "jsdom": "^26.1.0",
+        "npm-check-updates": "^18.0.3",
+        "tailwindcss": "^4.1.12",
+        "tailwindcss-animate": "^1.0.7",
+        "typescript": "~5.9.2",
+        "typescript-eslint": "^8.41.0",
+        "vite": "^7.1.3"
+    }
+}
