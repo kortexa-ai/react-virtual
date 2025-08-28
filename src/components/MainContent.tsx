@@ -85,17 +85,29 @@ export function MainContent() {
         return `hsl(${hue} ${sat}% ${light}%)`;
     }, [rng, hashString]);
 
-    const heights = useMemo(() =>
-        items.map((it, i) => getHeightForKey(String(it ?? i))),
-        [items, getHeightForKey]
-    );
+    // Viewport height for capping very large items at ~1.5x screen height
+    const [viewportHeight, setViewportHeight] = useState<number>(() => {
+        if (typeof window === 'undefined') return 800;
+        return Math.round((window as any).visualViewport?.height ?? window.innerHeight ?? 800);
+    });
+    useEffect(() => {
+        const update = () => setViewportHeight(Math.round((window as any).visualViewport?.height ?? window.innerHeight ?? 800));
+        update();
+        window.addEventListener('resize', update);
+        (window as any).visualViewport?.addEventListener?.('resize', update);
+        return () => {
+            window.removeEventListener('resize', update);
+            (window as any).visualViewport?.removeEventListener?.('resize', update);
+        };
+    }, []);
 
     const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
     const rowVirtualizer = useVirtualizer({
         count: items.length,
         getScrollElement: () => parentRef.current,
-        estimateSize: (index) => heights[index] ?? 60,
+        // Use a simple estimate; actual size will be measured from DOM
+        estimateSize: () => 60,
         // Use a stable key so DOM nodes are preserved as data is prepended
         getItemKey: (index) => items[index] ?? index,
         overscan: 5,
@@ -120,18 +132,33 @@ export function MainContent() {
         const el = parentRef.current;
         if (!el) return;
 
+        // On initial load, scroll to the last item and align it to the end.
         if (isInitialLoadRef.current && isSuccess && items.length > 0) {
-            el.scrollTop = el.scrollHeight;
-            isInitialLoadRef.current = false;
-            return;
+            const id1 = requestAnimationFrame(() => {
+                const id2 = requestAnimationFrame(() => {
+                    rowVirtualizer.scrollToIndex(items.length - 1, { align: 'end' });
+                    isInitialLoadRef.current = false;
+                });
+                // store nested rAF id on the outer scope to allow cancel on cleanup
+                (el as any)._rvInitRAF2 = id2;
+            });
+            return () => {
+                cancelAnimationFrame(id1);
+                if ((el as any)._rvInitRAF2) cancelAnimationFrame((el as any)._rvInitRAF2);
+            };
         }
 
+        // When more items are prepended, preserve visual position.
         const meta = scrollMetaRef.current;
         if (meta) {
-            el.scrollTop = el.scrollHeight - meta.prevScrollHeight + meta.prevScrollTop;
-            scrollMetaRef.current = null;
+            const id = requestAnimationFrame(() => {
+                const delta = el.scrollHeight - meta.prevScrollHeight;
+                el.scrollTop = meta.prevScrollTop + delta;
+                scrollMetaRef.current = null;
+            });
+            return () => cancelAnimationFrame(id);
         }
-    }, [items.length, isSuccess]);
+    }, [items.length, isSuccess, rowVirtualizer]);
 
 
     useEffect(() => {
@@ -160,7 +187,7 @@ export function MainContent() {
             <div className="mx-auto w-full max-w-screen-sm px-4">
                 <div
                     ref={parentRef}
-                    className="w-full overflow-y-auto overflow-x-hidden rounded-lg border shadow-sm"
+                    className="rv-scroller w-full overflow-y-auto overflow-x-hidden rounded-lg border shadow-sm"
                     style={{
                         position: "relative",
                         height: "calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
@@ -184,16 +211,17 @@ export function MainContent() {
 
                         {rowVirtualizer.getVirtualItems().map((virtualRow) => (
                             <div
+                                className="rv-item"
                                 key={virtualRow.key}
-                                ref={(node) => {
-                                    if (node) rowVirtualizer.measureElement(node);
-                                }}
+                                // Use instance measure + data-index for robust sizing
+                                data-index={virtualRow.index}
+                                ref={rowVirtualizer.measureElement}
                                 style={{
                                     position: "absolute",
-                                    top: virtualRow.start,
+                                    top: 0,
                                     left: 0,
                                     width: "100%",
-                                    height: `${virtualRow.size}px`,
+                                    transform: `translateY(${virtualRow.start}px)`,
                                     boxSizing: "border-box",
                                     borderBottom: "1px solid #eee",
                                 }}
@@ -202,14 +230,15 @@ export function MainContent() {
                                     const key = String(items[virtualRow.index] ?? virtualRow.index);
                                     const bg = getColorForKey(key);
                                     const isSelected = selectedKey === key;
+                                    // Compute a dynamic height for content, capped at ~1.5x viewport height
+                                    const rawH = getHeightForKey(key);
+                                    const cap = Math.floor(viewportHeight * 1.5);
+                                    const dynHeight = Math.min(rawH, cap);
                                     return (
-                                        <div
-                                            className="relative w-full"
-                                            style={{ height: "100%" }}
-                                        >
+                                        <div className="relative w-full">
                                             <button
-                                                className="group item-appear h-full w-full rounded-md overflow-hidden transition-shadow duration-200 ease-out hover:shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18),0_8px_28px_rgba(0,0,0,0.06)] focus-within:shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18),0_8px_28px_rgba(0,0,0,0.06)]"
-                                                style={{ background: bg }}
+                                                className="group item-appear w-full rounded-md overflow-hidden transition-shadow duration-200 ease-out hover:shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18),0_8px_28px_rgba(0,0,0,0.06)] focus-within:shadow-[inset_0_0_0_2px_rgba(0,0,0,0.18),0_8px_28px_rgba(0,0,0,0.06)]"
+                                                style={{ background: bg, minHeight: dynHeight, padding: 12 }}
                                                 tabIndex={0}
                                                 type="button"
                                                 onClick={() => setSelectedKey(prev => (prev === key ? null : key))}
@@ -229,11 +258,11 @@ export function MainContent() {
                                                     }}
                                                 />
 
-                                                {/* Simulated menu button (hover on desktop, touch/focus on mobile) */}
+                                                {/* Simulated menu button (hover/touch) */}
                                                 <button
                                                     type="button"
                                                     aria-label="Menu"
-                                                    className={`absolute right-2 top-2 z-10 h-8 w-8 rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-sm opacity-0 transition-opacity duration-150 focus:opacity-100 md:group-hover:opacity-100 group-active:opacity-100 group-focus-within:opacity-100 ${isSelected ? 'opacity-100' : ''}`}
+                                                    className="absolute right-2 top-2 z-10 h-8 w-8 rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-sm opacity-0 transition-opacity duration-150 focus:opacity-100 md:group-hover:opacity-100 group-active:opacity-100 group-focus-within:opacity-100"
                                                     style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
                                                     onClick={(e) => e.stopPropagation()}
                                                 >

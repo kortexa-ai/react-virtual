@@ -28,3 +28,9 @@
 .ios-momentum {
   -webkit-overflow-scrolling: touch;
 }
+
+/* Prevent browser scroll anchoring from fighting the virtualizer */
+.rv-scroller,
+.rv-item {
+  overflow-anchor: none;
+}
