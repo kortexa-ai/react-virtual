@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export default function QueryProvider({
+export function QueryProvider({
     children,
 }: Readonly<{
     children: React.ReactNode;

@@ -1,6 +1,6 @@
-# Contributing to cerebellum
+# Contributing to react-virtual
 
-At this point cerebellum does not accept any contributions. If you have any questions or suggestions, please feel free to open an issue.
+At this point react-virtual does not accept any contributions. If you have any questions or suggestions, please feel free to open an issue.
 
 ---
 

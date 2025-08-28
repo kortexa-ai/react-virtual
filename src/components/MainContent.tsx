@@ -1,9 +1,6 @@
-import { useVirtualizer } from "@tanstack/react-virtual";
-import {
-    useInfiniteQuery
-} from "@tanstack/react-query";
 import { useRef, useEffect, useCallback, useMemo, useState } from "react";
-
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 async function fetchData(limit: number, offset: number = 0): Promise<{ rows: string[]; nextOffset: number }> {
     const start = offset * limit;
@@ -15,7 +12,7 @@ async function fetchData(limit: number, offset: number = 0): Promise<{ rows: str
     };
 }
 
-export default function Page() {
+export function MainContent() {
     const LIMIT = 20;
     const parentRef = useRef<HTMLDivElement | null>(null);
     const isInitialLoadRef = useRef(true);

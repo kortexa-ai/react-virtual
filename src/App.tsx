@@ -1,12 +1,10 @@
-import QueryProvider from "./QueryProvider"
-import MainContent from "./MainContent"
+import {QueryProvider} from "./components/QueryProvider"
+import {MainContent} from "./components/MainContent"
 
-function App() {
+export function App() {
   return (
     <QueryProvider>
       <MainContent />
     </QueryProvider>
   )
 }
-
-export default App

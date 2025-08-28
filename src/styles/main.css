@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-animate";
 
 /* Subtle appear animation for virtualized items (no height changes) */
 @keyframes item-fade-in-up {
