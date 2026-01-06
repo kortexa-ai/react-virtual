@@ -57,7 +57,7 @@ export default defineConfig({
         port: Number.parseInt(
             process.env.VITE_DEVSERVER_PORT ??
                 process.env.VITE_PREVIEW_PORT ??
-                "4100",
+                "8000",
             10
         ),
         open: true,
@@ -67,7 +67,7 @@ export default defineConfig({
         port: Number.parseInt(
             process.env.VITE_DEVSERVER_PORT ??
                 process.env.VITE_PREVIEW_PORT ??
-                "4100",
+                "8000",
             10
         ),
         strictPort: true,
