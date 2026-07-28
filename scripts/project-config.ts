@@ -24,10 +24,6 @@ export const PROJECTS: ProjectConfig[] = [
         directory: "react-multimodal",
     },
     {
-        name: "@kortexa-ai/react-shadertoy",
-        directory: "react-shadertoy",
-    },
-    {
         name: "@kortexa-ai-private/ui",
         directory: "kortexa-ui",
     },
