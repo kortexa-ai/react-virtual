@@ -20,10 +20,6 @@ export const PROJECTS: ProjectConfig[] = [
         directory: "auth",
     },
     {
-        name: "@kortexa-ai/react-multimodal",
-        directory: "react-multimodal",
-    },
-    {
         name: "@kortexa-ai-private/ui",
         directory: "kortexa-ui",
     },
